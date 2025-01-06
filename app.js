@@ -6,6 +6,7 @@ const fromCurr = document.querySelector(".from select");
 const toCurr = document.querySelector(".to select");
 const msg = document.querySelector(".msg");
 
+// Populate dropdowns
 for (let select of dropdowns) {
   for (let currCode in countryList) {
     let newOption = document.createElement("option");
@@ -26,7 +27,7 @@ for (let select of dropdowns) {
   });
 }
 
-
+// Update exchange rate function
 const updateExchangeRate = async () => {
   let amount = document.querySelector(".amount input");
   let amtVal = amount.value;
@@ -41,9 +42,18 @@ const updateExchangeRate = async () => {
     if (!response.ok) throw new Error("Failed to fetch exchange rates");
 
     let data = await response.json();
-    let rate = data.conversion_rates[toCurr.value];
-    let finalAmount = (amtVal * rate).toFixed(2);
 
+    // Get the rates for both selected currencies
+    let fromRate = data.conversion_rates[fromCurr.value];
+    let toRate = data.conversion_rates[toCurr.value];
+
+    // Calculate the exchange rate between the two currencies
+    let conversionRate = toRate / fromRate;
+
+    // Calculate the final converted amount
+    let finalAmount = (amtVal * conversionRate).toFixed(2);
+
+    // Display the result
     msg.innerText = `${amtVal} ${fromCurr.value} = ${finalAmount} ${toCurr.value}`;
   } catch (error) {
     msg.innerText = "Error fetching exchange rates. Please try again later.";
@@ -51,7 +61,7 @@ const updateExchangeRate = async () => {
   }
 };
 
-
+// Update flag for selected currency
 const updateFlag = (element) => {
   let currCode = element.value;
   let countryCode = countryList[currCode];
@@ -61,11 +71,13 @@ const updateFlag = (element) => {
   img.src = newSrc;
 };
 
+// Button click event
 btn.addEventListener("click", (evt) => {
   evt.preventDefault();
   updateExchangeRate();
 });
 
+// Update exchange rate on page load
 window.addEventListener("load", () => {
   updateExchangeRate();
 });
